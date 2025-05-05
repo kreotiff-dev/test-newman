@@ -1,0 +1,21 @@
+name: Run Newman Tests
+on:
+  schedule:
+    - cron: '0 3 * * *'  # Запуск в 03:00 UTC
+  push:
+    branches: [ main ]
+jobs:
+  newman:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '21'
+      - run: npm install -g newman
+      - run: npm install -g newman-reporter-htmlextra
+      - run: newman run CreateOrder.postman_collection.json -e Dev.postman_environment.json -r htmlextra --reporter-htmlextra-export report.html
+      - uses: actions/upload-artifact@v3
+        with:
+          name: newman-report
+          path: report.html
