@@ -1,14 +1,12 @@
 name: Run Newman Tests
 
 on:
-  schedule:
-    - cron: '0 3 * * *'  # Запуск в 03:00 UTC
   push:
     branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  newman:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,16 +26,35 @@ jobs:
       - name: Create reports directory
         run: mkdir -p reports
 
-      - name: Run Newman tests (with CLI log)
+      - name: Run Newman tests
         run: |
           newman run collections/createOrder.json \
           -e environment/Dev-environment.json \
           -r cli,htmlextra \
           --reporter-htmlextra-export reports/report.html
-        continue-on-error: true
 
       - name: Upload HTML report
         uses: actions/upload-artifact@v4
         with:
           name: newman-report
           path: reports/report.html
+
+  deploy:
+    needs: test    # Ждёт завершения job test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: newman-report
+          path: gh-pages     # Папка для публикации
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: gh-pages
