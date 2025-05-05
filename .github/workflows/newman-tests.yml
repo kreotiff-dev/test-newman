@@ -4,6 +4,7 @@ on:
     - cron: '0 3 * * *'  # Запуск в 03:00 UTC
   push:
     branches: [ main ]
+  workflow_dispatch:
 jobs:
   newman:
     runs-on: ubuntu-latest
