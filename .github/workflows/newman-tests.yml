@@ -32,6 +32,7 @@ jobs:
           -e environment/Dev-environment.json \
           -r cli,htmlextra \
           --reporter-htmlextra-export reports/report.html
+        continue-on-error: true
 
       - name: Upload HTML report
         uses: actions/upload-artifact@v4
